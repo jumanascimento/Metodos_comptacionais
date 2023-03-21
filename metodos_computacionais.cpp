@@ -97,3 +97,22 @@ int main() {
     cin >> a >> b;
     double bisection_result = bisectionMethod(a, b, f, max_iter);
     cout << "Bisection method: root = "
+
+    double x0;
+cout << "Enter the initial guess x0 for the other methods: ";
+cin >> x0;
+
+double newton_result = newtonMethod(x0, f, [&](double x) { return (f(x + 1e-8) - f(x)) / 1e-8; }, max_iter);
+cout << "Newton's method: root = " << newton_result << endl;
+
+double x1;
+cout << "Enter another initial guess x1 for the secant method: ";
+cin >> x1;
+double secant_result = secantMethod(x0, x1, f, max_iter);
+cout << "Secant method: root = " << secant_result << endl;
+
+double fixed_point_result = fixedPointMethod(x0, [&](double x) { return x - f(x) / 2.0; }, max_iter);
+cout << "Fixed point method: root = " << fixed_point_result << endl;
+
+return 0;
+
