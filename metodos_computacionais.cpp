@@ -1,6 +1,7 @@
 #include <iostream>
 #include <cmath>
 #include <functional>
+#include "exprtk.hpp"
 
 using namespace std;
 
@@ -86,33 +87,36 @@ int main() {
     string function_string;
     cout << "Enter a function f(x): ";
     getline(cin, function_string);
-    function<double(double)> f = [&](double x) { return eval(function_string.c_str()); };
-    
+
+    // define expression symbol table
+    exprtk::symbol_table<double> symbol_table;
+    symbol_table.add_variable("x", 0.0);
+
+    // define expression parser
+    exprtk::expression<double> expression;
+    expression.register_symbol_table(symbol_table);
+
+    // compile expression
+    exprtk::parser<double> parser;
+    parser.compile(function_string, expression);
+
+    // define function using the compiled expression
+    function<double(double)> f = [&](double x) {
+        symbol_table.get_variable("x") = x;
+        return expression.value();
+    };
+
     int max_iter;
     cout << "Enter the maximum number of iterations: ";
     cin >> max_iter;
+
+    // call the root-finding method with the function and other parameters
+    double root = bisectionMethod(0.0, 1.0, f, max_iter);
+
+    cout << "Root: " << root << endl;
+
+    return 0;
+}
     
-    double a, b;
-    cout << "Enter the interval [a,b] for the bisection method: ";
-    cin >> a >> b;
-    double bisection_result = bisectionMethod(a, b, f, max_iter);
-    cout << "Bisection method: root = "
 
-    double x0;
-cout << "Enter the initial guess x0 for the other methods: ";
-cin >> x0;
-
-double newton_result = newtonMethod(x0, f, [&](double x) { return (f(x + 1e-8) - f(x)) / 1e-8; }, max_iter);
-cout << "Newton's method: root = " << newton_result << endl;
-
-double x1;
-cout << "Enter another initial guess x1 for the secant method: ";
-cin >> x1;
-double secant_result = secantMethod(x0, x1, f, max_iter);
-cout << "Secant method: root = " << secant_result << endl;
-
-double fixed_point_result = fixedPointMethod(x0, [&](double x) { return x - f(x) / 2.0; }, max_iter);
-cout << "Fixed point method: root = " << fixed_point_result << endl;
-
-return 0;
 
